@@ -37,11 +37,13 @@ export default function Page() {
 		// 1 млрд nanoton === 1 TON
 		const message = {
 			address: fakeAddress, // Адрес в любом формате (EQ, UQ, Raw)
-			amount: toNano('0.1').toString(),
+			amount: toNano('0.01').toString(),
 			payload: comment.toBoc().toString('base64'),
 		};
 
-		send(message);
+		// send(message);
+		
+		return message
 	};
 
 	// -------------------------------------- ОТПРАВКА JETTON --------------------------------------
@@ -73,8 +75,11 @@ export default function Page() {
 				.toString('base64'),
 		};
 
-		send(message);
+		// send(message);
+		
+		return message
 	};
+	
 
 	// -------------------------------------- ОТПРАВКА NFT ITEMS --------------------------------------
 
@@ -97,7 +102,8 @@ export default function Page() {
 				.toString('base64'),
 		};
 
-		send(message);
+		// send(message);
+		return message
 	};
 
 	const send = (message: TransactionMessageType) => {
@@ -106,6 +112,23 @@ export default function Page() {
 			messages: [message],
 		});
 	};
+
+	const sendMany = async () => {
+		const tonMessage = sendToncoins();
+		const tokenMessage = await sendToken();
+		const nftMessage = await sendNft();
+
+		const messages = [
+			tonMessage,
+			tokenMessage!,
+			nftMessage!
+		]
+
+		tonConnectUI.sendTransaction({
+			validUntil: Math.floor(Date.now() / 1000) + 100,
+			messages
+		})
+	}
 
 	// Посчитать jetton wallet пользователя можно разными способами, мы воспользуемся простым: просто запросим данные у tonapi вызвав get-метод самого контракта.
 	// Нам обязательно нужно знать адрес Jetton Master контракта.
@@ -141,6 +164,10 @@ export default function Page() {
 			</div>
 			<div className={styles.sender} onClick={sendNft}>
 				send NFT
+			</div>
+
+			<div className={styles.sender} onClick={sendMany}>
+				send them ALL
 			</div>
 		</div>
 	);
